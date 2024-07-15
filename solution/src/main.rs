@@ -1,35 +1,14 @@
 use std::io::{self, BufRead, Write};
 
-fn main() {
-    let stdin = io::stdin();
-    let mut game = Game::new();
-    let mut inputs = stdin.lock().lines();
-    while let Some(Ok(line)) = inputs.next() {
-        match line.split_whitespace().next() {
-            Some("$$$") | Some("exec") => {
-                game.update_player_info(&line);
-            }
-            Some("Anfield") => {
-                game.parse_grid(&mut inputs, &line);
-            }
-            Some("Piece") => {
-                game.parse_piece(&mut inputs, &line);
-                game.find_best_piece_position();
-            }
-            _ => (),
-        }
-    }
-}
-
-struct Game {
-    grid: Vec<Vec<char>>,
-    piece: Vec<Vec<char>>,
-    player_id: String,
-    player_command: String,
+pub struct Game {
+    pub grid: Vec<Vec<char>>,
+    pub piece: Vec<Vec<char>>,
+    pub player_id: String,
+    pub player_command: String,
 }
 
 impl Game {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             grid: Vec::new(),
             piece: Vec::new(),
@@ -38,13 +17,13 @@ impl Game {
         }
     }
 
-    fn update_player_info(&mut self, line: &str) {
+    pub fn update_player_info(&mut self, line: &str) {
         let parts: Vec<&str> = line.split_whitespace().collect();
         self.player_id = parts[2].to_string();
         self.player_command = line.to_string();
     }
 
-    fn parse_grid(&mut self, inputs: &mut io::Lines<io::StdinLock>, line: &str) {
+    pub fn parse_grid(&mut self, inputs: &mut io::Lines<io::StdinLock>, line: &str) {
         let grid_height: usize = line
             .split_whitespace()
             .find(|&word| word.ends_with(':'))
@@ -59,7 +38,7 @@ impl Game {
         }
     }
 
-    fn parse_piece(&mut self, inputs: &mut io::Lines<io::StdinLock>, line: &str) {
+    pub fn parse_piece(&mut self, inputs: &mut io::Lines<io::StdinLock>, line: &str) {
         let piece_height: usize = line
             .split_whitespace()
             .find(|&word| word.ends_with(':'))
@@ -73,7 +52,7 @@ impl Game {
         }
     }
 
-    fn find_best_piece_position(&self) {
+    pub fn find_best_piece_position(&self) {
         let (enemy, enemy2) = self.get_enemy_chars();
         let position = self.get_best_position(enemy, enemy2);
         if let Some((x, y)) = position {
@@ -84,7 +63,7 @@ impl Game {
         io::stdout().flush().unwrap();
     }
 
-    fn get_enemy_chars(&self) -> (char, char) {
+    pub fn get_enemy_chars(&self) -> (char, char) {
         match (self.player_id.as_str(), self.player_command.contains("solution")) {
             ("p1", true) => ('s', '$'),
             ("p2", true) => ('a', '@'),
